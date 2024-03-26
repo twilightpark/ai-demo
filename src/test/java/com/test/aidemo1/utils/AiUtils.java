@@ -9,6 +9,7 @@ import java.util.HashMap;
 import com.baidu.aip.imageclassify.AipImageClassify;
 import com.baidu.aip.nlp.AipNlp;
 
+import com.baidu.aip.nlp.ESimnetType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +44,10 @@ public class AiUtils  {
     public static final String API_KEY_NLPCORRECTION = "NGBIrGRWNEzGzR1zBCtTsQ1Q";
     public static final String SECRET_KEY_NLPCORRECTION= "oAcVtqMKNxNQ8x1ulqWAonp4DDcxqc6M";
 
-    public static final  String APP_ID_VOCAL= "58248469";
+    public static final String APP_ID_NLPVIEWS= "46455409";
+    public static final String API_KEY_NLPVIEWS = "NGBIrGRWNEzGzR1zBCtTsQ1Q";
+    public static final String SECRET_KEY_NLPVIEWS= "oAcVtqMKNxNQ8x1ulqWAonp4DDcxqc6M";
+
     public static final  String API_KEY_VOCAL = "0u1n586osQVaHsdbH9MXbWN6";
     public static final  String SECRET_KEY_VOCAL= "EsAdq5wesjbnWkaVWB3h5uMDubb9QwqG";
     private final boolean METHOD_RAW = false; // 默认以json方式上传音频文件
@@ -135,6 +139,7 @@ public class AiUtils  {
 
     }
 
+    /**语音识别相关代码*/
     public static String vocalRecognition(MultipartFile file) throws IOException, JSONException,DemoException{
         byte[] bytes = file.getBytes();
         String base64File= Base64.getEncoder().encodeToString(bytes);
@@ -264,6 +269,51 @@ public class AiUtils  {
             e.printStackTrace();
         }
         return result;
+    }
+    /**语音识别相关代码结束**/
+
+    public static String NLPViews(String text) throws  JSONException{
+        AipNlp client = new AipNlp(APP_ID_NLPCORRECTION, API_KEY_NLPCORRECTION, SECRET_KEY_NLPCORRECTION);
+
+        System.out.println("------------观点提取------------");
+        HashMap<String, Object> options7 = new HashMap<String, Object>();
+
+        JSONObject res = client.commentTag(text, ESimnetType.SHOPPING, options7);
+
+        System.out.println(res.toString());
+        JSONArray items=res.getJSONArray("items");
+        String result="";
+        for (int i = 0; i < items.length(); i++)
+        {
+            try {
+                // 获取当前索引处的 JSONObject
+                JSONObject item = items.getJSONObject(i);
+
+                // 获取JSONObject中的元素
+                int sentiment = item.getInt("sentiment");
+                if(sentiment==2)
+                {
+                    result+="积极的评价：";
+                }else if(sentiment==1)
+                {
+                    result+="中性的评价：";
+                }else
+                {
+                    result+="消极的评价：";
+                }
+                result+=item.getString("prop");
+                result+=item.getString("adj");
+                result+="\n";
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("result="+result);
+            return result;
+
+
     }
 
 
